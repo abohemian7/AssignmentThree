@@ -19,13 +19,20 @@
   </head>
   <body ng-app="zombify" ng-cloak class="container">
     <h1>Hello Google DRRrrRrvrr!</h1>
-    <div id="authorize-div" ng-controller="authController as ac">
-      <span>Authorize access to Drive API</span>
-      <!--Button for the user to click to initiate auth sequence -->
-      <button id="authorize-btn" ng-click="ac.onAuth(ac.client_id)">
-        Authorize
-      </button>
-    </div>
+
+
+    <nav>
+      <ul class="nav nav-tabs" role="tablist" ng-controller="TabController as tc">
+        <li role="presentation"><a href="#list" aria-controls="list" role="tab" data-toggle="tab">List</a>
+        </li>
+        <li role="presentation"><a href="#document" aria-controls="document" role="tab" data-toggle="tab">Document</a>
+        </li>
+        <li role="presentation"><a href="#oauth" aria-controls="oauth" role="tab" data-toggle="tab">OAuth</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div ng-view class="well"></div>
 
     <div id="output" class="well">
       <ul></ul>

@@ -11,12 +11,34 @@ app.controller('authController',['googleAuth',function(googleAuth){
         console.log(apiKey);
     }
 
+    ac.handleAuthClick = function(event) {
+    gapi.auth.authorize(
+      {client_id: ac.client_id, scope: ac.scopes, immediate: false},
+      handleAuthResult);
+    return false;
+  }
+
 }])
+
+app.controller('TabController', ['$location', function($location){
+    var tc = this;
+    tc.active = function(path){
+        return $location.path().match(path);
+    };
+}]);
 
 app.value('googleAuth',{
     "CLIENT_ID" : '613139624606-6ehoqh6b9qorgltqqaisnun1am8b8hpj.apps.googleusercontent.com',
     "SCOPES" : 'https://www.googleapis.com/auth/drive.metadata.readonly'
 })
+//
+//app.directive('oauthButton', [function(){
+//
+//    var od = this;
+//
+//        return
+//
+//    }]);
 
 app.config(['$routeProvider', function($routeProvider){
 
@@ -24,11 +46,43 @@ app.config(['$routeProvider', function($routeProvider){
         .when('/',{
             templateUrl:'index.html'
         })
+        .when('/list',{
+            templateUrl:'templates/list.html'
+        })
+        .when('/document',{
+            templateUrl:'templates/document.html'
+        })
+        .when('/oauth',{
+            templateUrl:'templates/oauth.html'
+        })
         .otherwise({
             redirectTo: '/'
         });
 
 }]);
+
+
+// https://stackoverflow.com/questions/11578506/google-drive-using-javascript-handling-file-content
+//gapi.client.request({
+//    'path': '/drive/v2/files/'+theID,
+//    'method': 'GET',
+//    callback: function ( theResponseJS, theResponseTXT ) {
+//        var myToken = gapi.auth.getToken();
+//        var myXHR   = new XMLHttpRequest();
+//        myXHR.open('GET', theResponseJS.downloadUrl, true );
+//        myXHR.setRequestHeader('Authorization', 'Bearer ' + myToken.access_token );
+//        myXHR.onreadystatechange = function( theProgressEvent ) {
+//            if (myXHR.readyState == 4) {
+////          1=connection ok, 2=Request received, 3=running, 4=terminated
+//                if ( myXHR.status == 200 ) {
+////              200=OK
+//                    console.log( myXHR.response );
+//                }
+//            }
+//        }
+//        myXHR.send();
+//    }
+//});
 
 //$(document).ready(function(){
 //  var action;

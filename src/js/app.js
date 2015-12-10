@@ -10,13 +10,13 @@ app.controller('authController',['googleAuth',function(googleAuth){
     ac.onAuth = function(apiKey){
         console.log(apiKey);
     }
-
-    ac.handleAuthClick = function(event) {
-    gapi.auth.authorize(
-      {client_id: ac.client_id, scope: ac.scopes, immediate: false},
-      handleAuthResult);
-    return false;
-  }
+    //
+    //ac.handleAuthClick = function(event) {
+    //    gapi.auth.authorize(
+    //      {client_id: ac.client_id, scope: ac.scopes, immediate: false},
+    //      handleAuthResult);
+    //    return false;
+    //}
 
 }])
 
@@ -26,6 +26,22 @@ app.controller('TabController', ['$location', function($location){
         return $location.path().match(path);
     };
 }]);
+
+app.directive('oauth', [function(){
+
+        //var linked = $location.path()
+
+        var authorizeClick = function(){
+            console.log('in directive oauth');
+            //console.log(linked);
+        };
+
+        return {
+            restrict: 'E',
+            controller: 'authController',
+            templateUrl: 'templates/auth-directive.html'
+        };
+    }]);
 
 app.value('googleAuth',{
     "CLIENT_ID" : '613139624606-6ehoqh6b9qorgltqqaisnun1am8b8hpj.apps.googleusercontent.com',
@@ -44,7 +60,7 @@ app.config(['$routeProvider', function($routeProvider){
 
     $routeProvider
         .when('/',{
-            templateUrl:'index.html'
+            templateUrl:'templates/oauth.html'
         })
         .when('/list',{
             templateUrl:'templates/list.html'

@@ -50,7 +50,15 @@ app.controller('authController',['googleCredentials',function(googleCredentials)
     //    return false;
     //}
 
-}])
+}]);
+
+app.controller('listController',['ListSvc', function(ListSvc){
+
+    var lc = this;
+
+    lc.documents = ListSvc.documents;
+
+}]);
 
 app.controller('TabController', ['$location', function($location){
     var tc = this;

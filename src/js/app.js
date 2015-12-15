@@ -1,14 +1,46 @@
 
 var app = angular.module('zombify',['ngRoute'])
 
-app.controller('authController',['googleAuth',function(googleAuth){
+app.controller('authController',['googleCredentials',function(googleCredentials){
     var ac = this;
 
-    ac.client_id = googleAuth.CLIENT_ID;
-    ac.scopes = googleAuth.SCOPES;
+    ac.client_id = googleCredentials.CLIENT_ID;
+    ac.scopes = googleCredentials.SCOPES;
+
+    var handleAuthResult = function(authResult) {
+        var authorizeDiv = document.getElementById('authorize-div');
+        if (authResult && !authResult.error) {
+            // Hide auth UI, then load client library.
+            authorizeDiv.style.display = 'none';
+            loadDriveApi();
+        } else {
+            // Show auth UI, allowing the user to initiate authorization by
+            // clicking authorize button.
+            authorizeDiv.style.display = 'inline';
+        }
+    };
+
+    var checkAuth = function() {
+        gapi.auth.authorize(
+            {
+                'client_id': googleCredentials.CLIENT_ID,
+                'scope': googleCredentials.SCOPES.join(' '),
+                'immediate': true
+            }, handleAuthResult);
+    };
+
+    var handleAuthClick = function(event) {
+        gapi.auth.authorize(
+            {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+            handleAuthResult);
+        return false;
+    }
 
     ac.onAuth = function(apiKey){
         console.log(apiKey);
+
+
+
     }
     //
     //ac.handleAuthClick = function(event) {
@@ -27,14 +59,29 @@ app.controller('TabController', ['$location', function($location){
     };
 }]);
 
+app.controller('ListController', ['ListSvc',function(ListSvc){
+
+    var lc = this;
+
+    lc.testVals = [1,2,3];
+
+    lc.gDocs = ListSvc;
+
+}]);
+
+app.service('ListSvc',[function(){
+    // list documents here
+    var documents = [
+        {"id":"1234","title":"first"},
+        {"id":"2345","title":"second"},
+        {"id":"3456","title":"third"}
+    ];
+
+    return documents;
+
+}]);
+
 app.directive('oauth', [function(){
-
-        //var linked = $location.path()
-
-        var authorizeClick = function(){
-            console.log('in directive oauth');
-            //console.log(linked);
-        };
 
         return {
             restrict: 'E',
@@ -43,10 +90,11 @@ app.directive('oauth', [function(){
         };
     }]);
 
-app.value('googleAuth',{
+app.value('googleCredentials',{
     "CLIENT_ID" : '613139624606-6ehoqh6b9qorgltqqaisnun1am8b8hpj.apps.googleusercontent.com',
     "SCOPES" : 'https://www.googleapis.com/auth/drive.metadata.readonly'
 })
+
 //
 //app.directive('oauthButton', [function(){
 //

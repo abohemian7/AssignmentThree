@@ -1,10 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>List</title>
 </head>
 <body>
-list, dude
+<div ng-controller="ListController as lc">
+    list, dude
+    <div ng-repeat="document in lc.testVals">
+        hi
+        <button>
+            {{document}}
+        </button>
+    </div>
+    <div ng-repeat="gdoc in lc.gDocs">
+        {{gdoc}}
+    </div>
+</div>
 </body>
-</html>

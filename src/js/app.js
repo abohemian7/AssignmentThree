@@ -67,6 +67,9 @@ app.controller('ListController', ['ListSvc','zombieTranslator',function(ListSvc,
 
     lc.gDocs = ListSvc;
 
+    lc.translate
+
+
 }]);
 
 app.value('zombieAPI',{

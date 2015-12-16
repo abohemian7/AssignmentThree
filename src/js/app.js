@@ -1,7 +1,7 @@
 
 var app = angular.module('zombify',['ngRoute'])
 
-app.controller('authController',['googleCredentials',function(googleCredentials){
+app.controller('authController',['$scope','googleCredentials',function($scope, googleCredentials){
     var ac = this;
 
     ac.client_id = googleCredentials.CLIENT_ID;
@@ -49,14 +49,6 @@ app.controller('authController',['googleCredentials',function(googleCredentials)
     //      handleAuthResult);
     //    return false;
     //}
-
-}]);
-
-app.controller('listController',['ListSvc', function(ListSvc){
-
-    var lc = this;
-
-    lc.documents = ListSvc.documents;
 
 }]);
 

@@ -5,15 +5,41 @@
 </head>
 <body>
 <div ng-controller="ListController as lc">
-    list, dude
-    <div ng-repeat="document in lc.testVals">
-        {{document}}
-        <button>
-            Click to translate
-        </button>
-    </div>
-    <div ng-repeat="gdoc in lc.gDocs">
-        {{gdoc}}
-    </div>
+    Click a document to translate
+    <br>
+
+    <style>
+        table, th , td {
+            border: 1px solid grey;
+            border-collapse: collapse;
+            padding: 5px;
+        }
+        table tr:nth-child(odd) {
+            background-color: #f1f1f1;
+        }
+        table tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+    </style>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Document Title</th>
+            <th>Body Length</th>
+            <th>Translate!</th>
+        </tr>
+        <tr ng-repeat="document in lc.gDocs">
+            <td>{{$index}}</td>
+            <td>{{ document.title }}</td>
+            <td>{{ document.body.length }}</td>
+            <td>
+                <button>
+                    Translate!
+                </button>
+            </td>
+        </tr>
+    </table>
+
 </div>
 </body>

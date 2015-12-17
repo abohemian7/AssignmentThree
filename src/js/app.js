@@ -1,11 +1,13 @@
 
 var app = angular.module('zombify',['ngRoute'])
 
-app.controller('authController',['$scope','googleCredentials',function($scope, googleCredentials){
+app.controller('authController',['$scope','googleCredentials', 'authStatus', function($scope, googleCredentials, authStatus){
     var ac = this;
 
     ac.client_id = googleCredentials.CLIENT_ID;
     ac.scopes = googleCredentials.SCOPES;
+
+    ac.authState = authStatus.status();
 
     var handleAuthResult = function(authResult) {
         var authorizeDiv = document.getElementById('authorize-div');
@@ -38,8 +40,7 @@ app.controller('authController',['$scope','googleCredentials',function($scope, g
 
     ac.onAuth = function(apiKey){
         console.log(apiKey);
-
-
+        ac.authState = authStatus.authorize();
 
     }
     //
@@ -59,16 +60,43 @@ app.controller('TabController', ['$location', function($location){
     };
 }]);
 
-app.controller('ListController', ['ListSvc','zombieTranslator',function(ListSvc, zombieTranslator){
+app.controller('DocController', ['ListSvc','zombieTranslator', 'authStatus',function(ListSvc, zombieTranslator, authStatus){
+
+    var dc = this;
+
+    dc.authStatus = authStatus.status();
+
+    dc.gDocs = ListSvc;
+
+    //dc.zombieBody = 'translated body';
+
+    dc.clicker = function(zombieBod){
+        console.log(zombieBod);
+    };
+
+    //dc.translatedbody = zombieTranslator.toZombie('hello');
+
+}]);
+
+app.controller('ListController', ['ListSvc','zombieTranslator', 'authStatus',function(ListSvc, zombieTranslator, authStatus){
 
     var lc = this;
 
-    lc.testVals = [1,2,3];
+    lc.authStatus = authStatus.status();
 
     lc.gDocs = ListSvc;
 
-    lc.translate
+    lc.selectDoc = function(docId){
+        localStorage.setItem('docId', docId);
+        console.log(docId);
+        //console.log('test');
+    };
 
+    var textTrans = zombieTranslator.toZombie('test').$$state;
+
+    lc.logZombie = function(){
+        console.log(textTrans);
+    }
 
 }]);
 
@@ -81,7 +109,9 @@ app.factory('zombieTranslator',['zombieAPI','$http',function(zombieAPI, $http){
     var translator = {};
 
     translator.toZombie = function(text){
-        return $http.get(zombieAPI.zombieTranslator + text);
+        console.log(zombieAPI.zombieTranslator + text)
+        var retVal = $http.get(zombieAPI.zombieTranslator + text);
+        return retVal;
     };
 
     return translator;
@@ -100,28 +130,45 @@ app.service('ListSvc',[function(){
 
 }]);
 
+app.service('authStatus',[function(){
+
+    var authState = {};
+
+    authState.authorize = function(){
+        authState = true;
+        console.log(authState);
+        localStorage.setItem('authState', 'true');
+        return authState;
+    };
+
+    authState.deauthorize = function(){
+        authState = false;
+        console.log(authState);
+        localStorage.setItem('authState','false');
+        return authState;
+    };
+
+    authState.status = function(){
+        return localStorage.getItem('authState');
+    }
+
+    return authState;
+
+}]);
+
 app.directive('oauth', [function(){
 
-        return {
-            restrict: 'E',
-            controller: 'authController',
-            templateUrl: 'templates/auth-directive.html'
-        };
-    }]);
+    return {
+        restrict: 'E',
+        controller: 'authController',
+        templateUrl: 'templates/auth-directive.html'
+    };
+}]);
 
 app.value('googleCredentials',{
     "CLIENT_ID" : '613139624606-6ehoqh6b9qorgltqqaisnun1am8b8hpj.apps.googleusercontent.com',
     "SCOPES" : 'https://www.googleapis.com/auth/drive.metadata.readonly'
 });
-
-//
-//app.directive('oauthButton', [function(){
-//
-//    var od = this;
-//
-//        return
-//
-//    }]);
 
 app.config(['$routeProvider', function($routeProvider){
 

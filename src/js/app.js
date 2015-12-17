@@ -68,13 +68,10 @@ app.controller('DocController', ['ListSvc','zombieTranslator', 'authStatus',func
 
     dc.gDocs = ListSvc;
 
-    //dc.zombieBody = 'translated body';
+    var work = localStorage.getItem('translatedMessage');
 
-    dc.clicker = function(zombieBod){
-        console.log(zombieBod);
-    };
+    dc.message = work;
 
-    //dc.translatedbody = zombieTranslator.toZombie('hello');
 
 }]);
 
@@ -92,7 +89,9 @@ app.controller('ListController', ['ListSvc','zombieTranslator', 'authStatus',fun
         //console.log('test');
     };
 
-    var textTrans = zombieTranslator.toZombie('test').$$state;
+    var textTrans = zombieTranslator.toZombie('test');
+
+    lc.zombieTalk = textTrans;
 
     lc.logZombie = function(){
         console.log(textTrans);
@@ -110,7 +109,16 @@ app.factory('zombieTranslator',['zombieAPI','$http',function(zombieAPI, $http){
 
     translator.toZombie = function(text){
         console.log(zombieAPI.zombieTranslator + text)
-        var retVal = $http.get(zombieAPI.zombieTranslator + text);
+
+        var retVal = "";
+
+       $http.get(zombieAPI.zombieTranslator + text).success(function(response){
+            console.log(response.message);
+           localStorage.setItem('translatedMessage',response.message);
+            retVal = response.message;
+        })
+
+        //var retVal = $http.get(zombieAPI.zombieTranslator + text);
         return retVal;
     };
 

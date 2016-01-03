@@ -5,7 +5,12 @@
 <div id="authorize-div" ng-controller="authController as ac">
     <span>Authorize access to Drive API</span>
     <!--Button for the user to click to initiate auth sequence -->
-    <button id="authorize-btn" ng-click="ac.onAuth(ac.client_id)">
+    <br>
+    <br>
+    <button id="authorize-btn" ng-click="ac.onAuth(ac.client_id)" ng-show="!ac.authState">
         Authorize
     </button>
+    <p ng-show="ac.authState">
+        Authorized!
+    </p>
 </div>

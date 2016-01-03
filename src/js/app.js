@@ -1,14 +1,47 @@
 
 var app = angular.module('zombify',['ngRoute'])
 
-app.controller('authController',['googleAuth',function(googleAuth){
+app.controller('authController',['$scope','googleCredentials', 'authStatus', function($scope, googleCredentials, authStatus){
     var ac = this;
 
-    ac.client_id = googleAuth.CLIENT_ID;
-    ac.scopes = googleAuth.SCOPES;
+    ac.client_id = googleCredentials.CLIENT_ID;
+    ac.scopes = googleCredentials.SCOPES;
+
+    ac.authState = authStatus.status();
+
+    var handleAuthResult = function(authResult) {
+        var authorizeDiv = document.getElementById('authorize-div');
+        if (authResult && !authResult.error) {
+            // Hide auth UI, then load client library.
+            authorizeDiv.style.display = 'none';
+            loadDriveApi();
+        } else {
+            // Show auth UI, allowing the user to initiate authorization by
+            // clicking authorize button.
+            authorizeDiv.style.display = 'inline';
+        }
+    };
+
+    var checkAuth = function() {
+        gapi.auth.authorize(
+            {
+                'client_id': googleCredentials.CLIENT_ID,
+                'scope': googleCredentials.SCOPES.join(' '),
+                'immediate': true
+            }, handleAuthResult);
+    };
+
+    var handleAuthClick = function(event) {
+        gapi.auth.authorize(
+            {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+            handleAuthResult);
+        return false;
+    }
 
     ac.onAuth = function(apiKey){
         console.log(apiKey);
+        ac.authState = authStatus.authorize();
+
     }
     //
     //ac.handleAuthClick = function(event) {
@@ -18,7 +51,7 @@ app.controller('authController',['googleAuth',function(googleAuth){
     //    return false;
     //}
 
-}])
+}]);
 
 app.controller('TabController', ['$location', function($location){
     var tc = this;
@@ -27,34 +60,123 @@ app.controller('TabController', ['$location', function($location){
     };
 }]);
 
+app.controller('DocController', ['ListSvc','zombieTranslator', 'authStatus',function(ListSvc, zombieTranslator, authStatus){
+
+    var dc = this;
+
+    dc.authStatus = authStatus.status();
+
+    dc.gDocs = ListSvc;
+
+    var work = localStorage.getItem('translatedMessage');
+
+    dc.message = work;
+
+
+}]);
+
+app.controller('ListController', ['ListSvc','zombieTranslator', 'authStatus',function(ListSvc, zombieTranslator, authStatus){
+
+    var lc = this;
+
+    lc.authStatus = authStatus.status();
+
+    lc.gDocs = ListSvc;
+
+    lc.selectDoc = function(docId){
+        localStorage.setItem('docId', docId);
+        console.log(docId);
+        //console.log('test');
+    };
+
+    var textTrans = zombieTranslator.toZombie('test');
+
+    lc.zombieTalk = textTrans;
+
+    lc.logZombie = function(){
+        console.log(textTrans);
+    }
+
+}]);
+
+app.value('zombieAPI',{
+   "zombieTranslator": 'http://ancient-anchorage-9224.herokuapp.com/zombify?q='
+});
+
+app.factory('zombieTranslator',['zombieAPI','$http',function(zombieAPI, $http){
+
+    var translator = {};
+
+    translator.toZombie = function(text){
+        console.log(zombieAPI.zombieTranslator + text)
+
+        var retVal = "";
+
+       $http.get(zombieAPI.zombieTranslator + text).success(function(response){
+            console.log(response.message);
+           localStorage.setItem('translatedMessage',response.message);
+            retVal = response.message;
+        })
+
+        //var retVal = $http.get(zombieAPI.zombieTranslator + text);
+        return retVal;
+    };
+
+    return translator;
+
+}]);
+
+app.service('ListSvc',[function(){
+    // list documents here
+    var documents = [
+        {"id":"1234","title":"first", "body": "this is the first test body"},
+        {"id":"2345","title":"second", "body": "this is the second test body"},
+        {"id":"3456","title":"third", "body": "this is the third test body"}
+    ];
+
+    return documents;
+
+}]);
+
+app.service('authStatus',[function(){
+
+    var authState = {};
+
+    authState.authorize = function(){
+        authState = true;
+        console.log(authState);
+        localStorage.setItem('authState', 'true');
+        return authState;
+    };
+
+    authState.deauthorize = function(){
+        authState = false;
+        console.log(authState);
+        localStorage.setItem('authState','false');
+        return authState;
+    };
+
+    authState.status = function(){
+        return localStorage.getItem('authState');
+    }
+
+    return authState;
+
+}]);
+
 app.directive('oauth', [function(){
 
-        //var linked = $location.path()
+    return {
+        restrict: 'E',
+        controller: 'authController',
+        templateUrl: 'templates/auth-directive.html'
+    };
+}]);
 
-        var authorizeClick = function(){
-            console.log('in directive oauth');
-            //console.log(linked);
-        };
-
-        return {
-            restrict: 'E',
-            controller: 'authController',
-            templateUrl: 'templates/auth-directive.html'
-        };
-    }]);
-
-app.value('googleAuth',{
+app.value('googleCredentials',{
     "CLIENT_ID" : '613139624606-6ehoqh6b9qorgltqqaisnun1am8b8hpj.apps.googleusercontent.com',
     "SCOPES" : 'https://www.googleapis.com/auth/drive.metadata.readonly'
-})
-//
-//app.directive('oauthButton', [function(){
-//
-//    var od = this;
-//
-//        return
-//
-//    }]);
+});
 
 app.config(['$routeProvider', function($routeProvider){
 
